@@ -7,6 +7,9 @@ module.exports = function(app) {
 
   app.post("/pagamentos/pagamento", function(request, response) {
     let pagamento = request.body;
+    pagamento.status = 'CRIADO';
+    pagamento.data = new Date();
+    console.log("Processando uma requisição de novo pagamento.");
     console.log(pagamento);
     response.send('OK');
   });
