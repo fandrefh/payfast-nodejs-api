@@ -6,6 +6,17 @@ module.exports = function(app) {
   });
 
   app.post("/pagamentos/pagamento", function(request, response) {
+
+    request.assert('forma_pagamento', 'Este campo é obrigatório.').notEmpty();
+    request.assert('valor', 'Este campo é obrigatório e precisa ser um decimal.').notEmpty().isFloat();
+
+    let erros = request.validationErrors();
+    if (erros) {
+      console.log("Erros de validação.");
+      response.status(400).send(erros);
+      return;
+    }
+
     let pagamento = request.body;
 
     pagamento.status = 'CRIADO';
@@ -17,8 +28,13 @@ module.exports = function(app) {
     let dao = new app.persistencia.PagamentoDao(connection);
 
     dao.salva(pagamento, function(err, result) {
-      console.log('Pagamento criado.');;
-      response.json(pagamento);
+      if (err) {
+        console.log('Erro ao inserir registro no banco: ' + err);
+        response.status(400).send(err);
+      } else {
+        console.log('Pagamento criado.');
+        response.json(pagamento);
+      }
     });
 
   });
